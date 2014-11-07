@@ -1,0 +1,7 @@
+---
+# LFS single server
+- hosts: lfsserver
+  gather_facts: false
+  roles:
+    - lfs-pre-requisities
+    - lfs

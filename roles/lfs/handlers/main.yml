@@ -1,0 +1,9 @@
+---
+# handlers for role lfs
+- name: restart postgresql
+  sudo: yes
+  service: name=postgresql state=restarted
+
+- name: restart nginx
+  sudo: yes
+  service: name=nginx state=restarted

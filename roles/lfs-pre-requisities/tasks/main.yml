@@ -1,0 +1,50 @@
+---
+# tasks of role: lfs-pre-requisities
+
+- name: upgrade all packages
+  apt: upgrade=yes update_cache=yes cache_valid_time=3600
+  sudo: yes
+
+- name: system python packages
+  apt: pkg={{ item }} state=present
+  sudo: yes
+  with_items:
+  - build-essential
+  - python-all-dev
+  - python-pip
+
+- name: image support packages required by pillow
+  apt: pkg={{ item }} state=present
+  sudo: yes
+  with_items:
+  - libjpeg8-dev
+  - zlib1g-dev
+
+- name: postgres packages
+  apt: pkg={{ item }} state=present
+  sudo: yes
+  with_items:
+  - postgresql
+  - postgresql-contrib
+  - libpq-dev
+
+- name: nginx packages
+  apt: pkg={{ item }} state=present
+  sudo: yes
+  with_items:
+  - nginx
+
+- name: python libraries
+  pip: name={{ item }} state=present
+  sudo: yes
+  with_items:
+  - psycopg2
+  - uwsgi
+
+- name: install locale {{ locale_lang }}
+  locale_gen: name={{ locale_lang }} state=present
+  sudo: yes
+
+- name: set default locale to {{ locale_lang }}
+  template: src=locale.j2 dest=/etc/default/locale
+  sudo: yes

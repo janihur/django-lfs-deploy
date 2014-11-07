@@ -1,0 +1,8 @@
+---
+# vars of role: lfs
+
+lfs:
+  nginx_domain_name: '192.168.100.32'
+  django_media_path: '/tmp/lfs-installer/lfs_project/media'
+  django_static_path: '/tmp/lfs-installer/lfs_project/sitestatic'
+  django_uwsgi_params: '/tmp/lfs-installer/lfs_project/uwsgi_params'
