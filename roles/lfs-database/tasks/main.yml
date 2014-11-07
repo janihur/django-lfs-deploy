@@ -1,0 +1,26 @@
+---
+# tasks of role: lfs-database
+
+- name: create lfs database user
+  sudo: yes
+  sudo_user: postgres
+  postgresql_user: name={{ db_username }} password={{ db_password }}
+
+- name: create lfs database
+  sudo: yes
+  sudo_user: postgres
+  postgresql_db: name={{ db_name }} owner={{ db_username }}
+
+- name: allow lfs database login
+  sudo: yes
+  sudo_user: postgres
+  register: db_config
+  lineinfile: dest=/etc/postgresql/9.3/main/pg_hba.conf
+              regexp='^local\s+all\s+all\s+peer'
+              backrefs=yes
+              line='local   all             all                                     md5'
+
+- name: restart postgresql
+  sudo: yes
+  when: db_config.changed
+  service: name=postgresql state=restarted

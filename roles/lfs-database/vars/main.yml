@@ -1,0 +1,6 @@
+---
+# vars of role: lfs-database
+
+db_name: 'lfsdb'
+db_username: 'lfs'
+db_password: 'lfs'

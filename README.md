@@ -3,15 +3,16 @@ django-lfs-deploy
 
 DRAFT
 
-How to deploy Lighting Fast Shop (LFS) to a single Linux node.
+How to deploy [Lighting Fast Shop](http://www.getlfs.com) (LFS) online shop to a single Linux node with [Ansible](http://www.ansible.com/home).
 
-Backend database: PostgreSQL
-Image support: JPG and PNG
-Configurable locale
-Served with nginx and uwsgi
+* Backend database: [PostgreSQL](http://www.postgresql.org)
+* Image support: JPG and PNG
+* Configurable locale
+* Served with [nginx](http://nginx.org) and [uWSGI](http://uwsgi-docs.readthedocs.org/en/latest/)
 
 Ansible
 -------
 
-ansible-playbook -i inventory lfsserver.yml
-
+```Shell
+$ ansible-playbook -i inventory lfsserver.yml
+```

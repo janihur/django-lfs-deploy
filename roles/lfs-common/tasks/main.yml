@@ -1,0 +1,66 @@
+---
+# tasks of role: lfs-common
+
+- name: upgrade all packages
+  sudo: yes
+  apt: upgrade=yes update_cache=yes cache_valid_time=3600
+
+- name: postgresql packages
+  sudo: yes
+  apt: pkg={{ item }} state=present
+  with_items:
+  - postgresql
+  - postgresql-contrib
+  - libpq-dev
+
+- name: system python packages
+  sudo: yes
+  apt: pkg={{ item }} state=present
+  with_items:
+  - build-essential
+  - python-all-dev
+  - python-pip
+
+- name: image support packages required by pillow
+  sudo: yes
+  apt: pkg={{ item }} state=present
+  with_items:
+  - libjpeg8-dev
+  - zlib1g-dev
+
+- name: python libraries
+  sudo: yes
+  pip: name={{ item }} state=present
+  with_items:
+  - psycopg2
+  - uwsgi
+
+- name: nginx packages
+  sudo: yes
+  apt: pkg={{ item }} state=present
+  with_items:
+  - nginx
+
+- name: install locale {{ locale_lang }}
+  sudo: yes
+  locale_gen: name={{ locale_lang }} state=present
+
+- name: set default locale to {{ locale_lang }}
+  sudo: yes
+  register: default_locale
+  template: src=locale.j2 dest=/etc/default/locale
+
+# https://support.ansible.com/hc/en-us/articles/201958037-Reboot-a-server-and-wait-for-it-to-come-back
+- name: restart
+  sudo: yes
+  when: default_locale.changed
+  command: shutdown -r now "Ansible updates triggered"
+  async: 0
+  poll: 0
+  ignore_errors: true
+
+- name: waiting for server to come back
+  sudo: no
+  when: default_locale.changed
+  local_action: wait_for host={{ inventory_hostname }}
+                state=started
