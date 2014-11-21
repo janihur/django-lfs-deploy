@@ -4,3 +4,7 @@
 - name: restart nginx
   sudo: yes
   service: name=nginx state=restarted
+
+- name: restart uwsgi
+  sudo: yes
+  service: name=uwsgi state=restarted

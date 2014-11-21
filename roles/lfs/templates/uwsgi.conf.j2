@@ -1,0 +1,11 @@
+# Managed by Ansible
+# Manual modifications will be overwritten
+
+description "single uwsgi instance for lfs"
+start on runlevel [2345]
+stop on runlevel [06]
+
+respawn
+
+# TODO: --master
+exec uwsgi --daemonize /var/log/uwsgi.log --uid {{ lfs.uwsgi_uid }} --gid {{ lfs.uwsgi_gid }} --chdir {{ lfs.project_dir }} --socket :8001 --module wsgi

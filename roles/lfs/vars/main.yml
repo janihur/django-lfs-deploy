@@ -5,7 +5,10 @@ _lfs_root_dir: '/home/{{ ansible_ssh_user }}'
 
 lfs:
   install_package_url: 'https://pypi.python.org/packages/source/d/django-lfs/django-lfs-installer-0.9.0a1.tar.gz#md5=0f53dfe2f215552e4b7b2a1d4e4d6d62'
+  project_dir: '{{ _lfs_root_dir }}/lfs-installer/lfs_project'
   nginx_domain_name: '192.168.100.43'
   django_media_path: '{{ _lfs_root_dir }}/lfs-installer/lfs_project/media'
   django_static_path: '{{ _lfs_root_dir }}/lfs-installer/lfs_project/sitestatic'
   django_uwsgi_params: '{{ _lfs_root_dir }}/lfs-installer/lfs_project/uwsgi_params'
+  uwsgi_uid: '{{ ansible_ssh_user }}'
+  uwsgi_gid: '{{ ansible_ssh_user }}'

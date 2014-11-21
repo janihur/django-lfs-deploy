@@ -1,5 +1,5 @@
 ---
-# tasks of role: lfs
+tasks of role: lfs
 
 - name: check if install package exists
   command: /usr/bin/test -d ~/lfs-installer
@@ -121,7 +121,11 @@
     dest=/etc/nginx/sites-enabled/lfs_nginx.conf
     state=link
 
-# TODO: run with supervisord ?
-- name: run uwsgi
-  command: uwsgi -d ~/lfs_uwsgi.log --socket :8001 --module wsgi
-    chdir=~/lfs-installer/lfs_project/
+- name: configure uwsgi
+  sudo: yes
+  notify: restart uwsgi
+  # register: uwsgi_config
+  template: src=uwsgi.conf.j2 dest=/etc/init/uwsgi.conf
+
+# TODO: uwsgi stats server: http://uwsgi-docs.readthedocs.org/en/latest/StatsServer.html
+# TODO: uwsgitop: https://github.com/unbit/uwsgitop
