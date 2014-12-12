@@ -13,7 +13,7 @@
   when: lfs_install_package_exists.rc != 0
 
 - name: unpack lfs install package
-  unarchive: src=~/django-lfs-installer-0.9.0a1.tar.gz dest=~/ copy=no
+  unarchive: src=~/django-lfs-installer-0.9.0a1.tar.gz dest={{ _lfs_root_dir }}/ copy=no
   when: lfs_install_package_exists.rc != 0
 
 - name: add wsgi to buildout.cfg
