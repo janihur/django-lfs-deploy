@@ -54,7 +54,7 @@
 - name: restart
   sudo: yes
   when: default_locale.changed
-  command: shutdown -r now "Ansible updates triggered"
+  command: shutdown -r now "Reboot triggered by Ansible."
   async: 0
   poll: 0
   ignore_errors: true
