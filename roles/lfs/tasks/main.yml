@@ -2,108 +2,133 @@
 # tasks of role: lfs
 
 - name: check if install package exists
-  command: /usr/bin/test -d ~/lfs-installer
+  command: /usr/bin/test -d {{ lfs.root_dir }}/lfs-installer
   register: lfs_install_package_exists
   ignore_errors: yes
   changed_when: lfs_install_package_exists.rc != 0
 
 - name: download install package
   get_url: url={{ lfs.install_package_url }}
-           dest=~
+           dest={{ lfs.root_dir }}/
   when: lfs_install_package_exists.rc != 0
 
 - name: unpack lfs install package
-  unarchive: src=~/django-lfs-installer-0.9.0a1.tar.gz dest={{ _lfs_root_dir }}/ copy=no
+  unarchive: src=~/{{ lfs.install_package }} dest={{ lfs.root_dir }}/ copy=no
   when: lfs_install_package_exists.rc != 0
 
 - name: add wsgi to buildout.cfg
-  lineinfile: dest=~/lfs-installer/buildout.cfg
+  lineinfile: dest={{ lfs.install_dir }}/buildout.cfg
               line='wsgi = true'
 
 - name: install step 1 - bootstrap.py
   command: python bootstrap.py
-           chdir=~/lfs-installer/
-           creates=~/lfs-installer/bin/buildout
+           chdir={{ lfs.install_dir }}
+           creates={{ lfs.install_dir }}/bin/buildout
 
 - name: install step 2.1 - bin/buildout
   command: bin/buildout -v
-           chdir=~/lfs-installer/
-           creates=~/lfs-installer/bin/django
+           chdir={{ lfs.install_dir }}
+           creates={{ lfs.install_dir }}/bin/django
 
 - name: install step 2.2 - bin/buildout
-  file: src=~/lfs-installer/bin/django.wsgi
-        dest=~/lfs-installer/lfs_project/wsgi.py state=link
+  file: src={{ lfs.install_dir }}/bin/django.wsgi
+        dest={{ lfs.project_dir }}/wsgi.py
+        state=link
+
+# TODO: uses hardcoded values - db and locale settings not available in this playbook ...
+# TODO: configure also DEBUG, DEFAULT_FROM_EMAIL, ADMINS, SECRET_KEY etc.
+# TODO: use a template instead ?
+# TODO: generate passwords see:
+#       http://docs.ansible.com/playbooks_lookups.html#the-password-lookup
+#       http://docs.ansible.com/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
+#       http://stephen.rees-carter.net/thought/generating-passwords-in-ansible-with-complex-loops
 
 # Note the quoting because of colon (:)
 - name: install step 3.1 - configure settings
   lineinfile: 
-    "dest=~/lfs-installer/lfs_project/settings.py
+    "dest={{ lfs.project_dir }}/settings.py
     regexp=\"\\s+'ENGINE': 'django.db.backends.',\"
     backrefs=yes
     line=\"        'ENGINE': 'django.db.backends.postgresql_psycopg2',\""
 
 - name: install step 3.2 - configure settings
   lineinfile: 
-    "dest=~/lfs-installer/lfs_project/settings.py
+    "dest={{ lfs.project_dir }}/settings.py
     regexp=\"\\s+'NAME': '',\"
     backrefs=yes
     line=\"        'NAME': 'lfsdb',\""
 
 - name: install step 3.3 - configure settings
   lineinfile: 
-    "dest=~/lfs-installer/lfs_project/settings.py
+    "dest={{ lfs.project_dir }}/settings.py
     regexp=\"\\s+'USER': '',\"
     backrefs=yes
     line=\"        'USER': 'lfs',\""
 
 - name: install step 3.4 - configure settings
   lineinfile: 
-    "dest=~/lfs-installer/lfs_project/settings.py
+    "dest={{ lfs.project_dir }}/settings.py
     regexp=\"\\s+'PASSWORD': '',\"
     backrefs=yes
     line=\"        'PASSWORD': 'lfs',\""
 
 - name: install step 3.5 - configure settings
   lineinfile: 
-    dest=~/lfs-installer/lfs_project/settings.py
+    dest={{ lfs.project_dir }}/settings.py
     regexp='^LANGUAGE_CODE'
     backrefs=yes
     line="LANGUAGE_CODE = 'en-ie'"
 
 - name: install step 3.6 - configure settings
   lineinfile: 
-    dest=~/lfs-installer/lfs_project/settings.py
+    dest={{ lfs.project_dir }}/settings.py
     regexp='^LFS_LOCALE'
     backrefs=yes
     line='LFS_LOCALE = "en_IE.UTF-8"'
 
+# TODO: Django superuser account and (encrypted) password located in initial_data.json
+# TODO: use django_manage ansible module instead but now it fails:
+# - name: install step 4.1 - django loaddata
+#   django_manage: command=loaddata app_path={{ lfs.project_dir }} fixtures=initial_data.json
+#   File "manage.py", line 2, in <module>
+#     from django.core.management import execute_manager
+# ImportError: No module named django.core.management
+
+# syncdb runs only when fixture file changed
 - name: install step 4.1 - django syncdb
   copy:
     src=initial_data.json
-    dest=~/lfs-installer/eggs/Django-1.6.5-py2.7.egg/django/contrib/auth/fixtures/
+    dest={{ lfs.install_dir }}/eggs/Django-1.6.5-py2.7.egg/django/contrib/auth/fixtures/
+  register: django_syncdb
 
 - name: install step 4.2 - django syncdb
   command: bin/django syncdb --noinput
-           chdir=~/lfs-installer/
+           chdir={{ lfs.install_dir }}
+  when: django_syncdb.changed == true
 
 - name: install step 5 - django migrate
   command: bin/django migrate
-           chdir=~/lfs-installer/
+           chdir={{ lfs.install_dir }}
 
-# # TODO: second run fails
-# - name: install step 6 - django lfs_init
-#   command: bin/django lfs_init
-#            chdir=~/lfs-installer/
+# django lfs_init can be run only once
+- name: install step 6.1 - django lfs_init
+  command: bin/django lfs_init
+           chdir={{ lfs.install_dir }}
+           creates={{ lfs.install_dir }}/.django_lfs_init_run
+
+- name: install step 6.2 - django lfs_init
+  file: path={{ lfs.install_dir }}/.django_lfs_init_run state=touch
+  changed_when: false
 
 - name: install step 7 - django collectstatic
   command: bin/django collectstatic --noinput
-           chdir=~/lfs-installer/
+           chdir={{ lfs.install_dir }}
 
 - name: configure nginx step 1
   notify: restart nginx
   file:
     src=/etc/nginx/uwsgi_params
-    dest=~/lfs-installer/lfs_project/uwsgi_params
+    dest={{ lfs.project_dir }}/uwsgi_params
     state=link
 
 - name: configure nginx step 2
