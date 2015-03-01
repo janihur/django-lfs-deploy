@@ -5,4 +5,6 @@
   roles:
     - lfs-common
     - lfs-database
-    - lfs
+    - { role: lfs
+       ,lfs_nginx_domain_name: "{{ host_lfs_nginx_domain_name }}"
+       ,lfs_superuser_username: "{{ host_lfs_superuser_username }}" }
