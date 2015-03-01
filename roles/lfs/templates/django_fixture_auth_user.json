@@ -1,0 +1,20 @@
+[
+{
+  "pk": 1, 
+  "model": "auth.user", 
+  "fields": {
+    "username": "{{ lfs_superuser_username }}", 
+    "first_name": "{{ lfs_superuser_first_name }}", 
+    "last_name": "{{ lfs_superuser_last_name }}", 
+    "is_active": true, 
+    "is_superuser": true, 
+    "is_staff": true, 
+    "last_login": "2015-03-01T12:00:00.000", 
+    "groups": [], 
+    "user_permissions": [], 
+    "password": "pbkdf2_sha256$12000$4TfX4xoicu1R$qKFgRcAzol3psUnU1LD9PfBtudqdYsp7OkHi1wh8G0s=", 
+    "email": "{{ lfs_superuser_email }}", 
+    "date_joined": "2015-03-01T12:00:00.000"
+  }
+}
+]

@@ -14,9 +14,17 @@ The LFS version is [0.9.0a1](https://pypi.python.org/pypi/django-lfs/0.9.0a1).
 Ansible
 -------
 
+Tested with Ansible version 1.8.2.
+
 Create Ansible [inventory file](http://docs.ansible.com/intro_inventory.html) with one group `[lfsserver]`.
 
 LFS is installed into `~/<ANSIBLE_SSH_USER>/lfs-installer/lfs_project`-directory.
+
+LFS superuser initial password is set to a random string that one have to change after installation:
+
+```bash
+$ ~/lfs-installer/bin/django changepassword <LFS_SUPERUSER_USERNAME>
+```
 
 The following variables can/should be set:
 
@@ -26,9 +34,8 @@ Server locale | roles/lfs-common/vars/main.yml | locale_lang | en_IE.utf8
 Database name | roles/lfs-database/vars/main.yml | db_name | lfsdb
 Database user | roles/lfs-database/vars/main.yml | db_username | lfs
 Database password | roles/lfs-database/vars/main.yml | db_password | lfs
-nginx domain name | roles/lfs/vars/main.yml | lfs.nginx_domain_name | {{ inventory_hostname }}
-LFS installation package | roles/lfs/vars/main.yml | lfs.install_package_url | https://pypi.python.org/packages/source/d/django-lfs/django-lfs-installer-0.9.0a1.tar.gz#md5=0f53dfe2f215552e4b7b2a1d4e4d6d62
-
+nginx domain name | roles/lfs/vars/main.yml | lfs_nginx_domain_name | {{ inventory_hostname }}
+LFS superuser name | roles/lfs/vars/main.yml | lfs_superuser_username | lfsadmin
 
 Run the `lfsserver.yml` playbook:
 

@@ -86,7 +86,6 @@
     backrefs=yes
     line='LFS_LOCALE = "en_IE.UTF-8"'
 
-# TODO: Django superuser account and (encrypted) password located in initial_data.json
 # TODO: use django_manage ansible module instead but now it fails:
 # - name: install step 4.1 - django loaddata
 #   django_manage: command=loaddata app_path={{ lfs.project_dir }} fixtures=initial_data.json
@@ -94,12 +93,12 @@
 #     from django.core.management import execute_manager
 # ImportError: No module named django.core.management
 
-# syncdb runs only when fixture file changed
+# syncdb runs only when initial_data fixture changed
 - name: install step 4.1 - django syncdb
-  copy:
-    src=initial_data.json
-    dest={{ lfs.install_dir }}/eggs/Django-1.6.5-py2.7.egg/django/contrib/auth/fixtures/
   register: django_syncdb
+  template:
+    src=django_fixture_auth_user.json
+    dest={{ lfs.install_dir }}/eggs/Django-1.6.5-py2.7.egg/django/contrib/auth/fixtures/initial_data.json
 
 - name: install step 4.2 - django syncdb
   command: bin/django syncdb --noinput
