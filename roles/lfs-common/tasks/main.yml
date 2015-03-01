@@ -63,4 +63,6 @@
   sudo: no
   when: default_locale.changed
   local_action: wait_for host={{ inventory_hostname }}
+                delay=30
+                timeout=120
                 state=started
