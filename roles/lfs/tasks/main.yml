@@ -37,54 +37,15 @@
 
 # TODO: uses hardcoded values - db and locale settings not available in this playbook ...
 # TODO: configure also DEBUG, DEFAULT_FROM_EMAIL, ADMINS, SECRET_KEY etc.
-# TODO: use a template instead ?
 # TODO: generate passwords see:
 #       http://docs.ansible.com/playbooks_lookups.html#the-password-lookup
 #       http://docs.ansible.com/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
 #       http://stephen.rees-carter.net/thought/generating-passwords-in-ansible-with-complex-loops
 
-# Note the quoting because of colon (:)
-- name: install step 3.1 - configure settings
-  lineinfile: 
-    "dest={{ lfs.project_dir }}/settings.py
-    regexp=\"\\s+'ENGINE': 'django.db.backends.',\"
-    backrefs=yes
-    line=\"        'ENGINE': 'django.db.backends.postgresql_psycopg2',\""
-
-- name: install step 3.2 - configure settings
-  lineinfile: 
-    "dest={{ lfs.project_dir }}/settings.py
-    regexp=\"\\s+'NAME': '',\"
-    backrefs=yes
-    line=\"        'NAME': 'lfsdb',\""
-
-- name: install step 3.3 - configure settings
-  lineinfile: 
-    "dest={{ lfs.project_dir }}/settings.py
-    regexp=\"\\s+'USER': '',\"
-    backrefs=yes
-    line=\"        'USER': 'lfs',\""
-
-- name: install step 3.4 - configure settings
-  lineinfile: 
-    "dest={{ lfs.project_dir }}/settings.py
-    regexp=\"\\s+'PASSWORD': '',\"
-    backrefs=yes
-    line=\"        'PASSWORD': 'lfs',\""
-
-- name: install step 3.5 - configure settings
-  lineinfile: 
+- name: install step 3 - configuration
+  template:
+    src=settings.j2
     dest={{ lfs.project_dir }}/settings.py
-    regexp='^LANGUAGE_CODE'
-    backrefs=yes
-    line="LANGUAGE_CODE = 'en-ie'"
-
-- name: install step 3.6 - configure settings
-  lineinfile: 
-    dest={{ lfs.project_dir }}/settings.py
-    regexp='^LFS_LOCALE'
-    backrefs=yes
-    line='LFS_LOCALE = "en_IE.UTF-8"'
 
 # TODO: use django_manage ansible module instead but now it fails:
 # - name: install step 4.1 - django loaddata
